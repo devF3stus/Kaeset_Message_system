@@ -22,7 +22,7 @@ jobs:
       - name: Setup Flutter (3.19.0)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.0'   # ← FIXED VERSION
+          flutter-version: '3.47.2'   # ← FIXED VERSION
 
       - name: Verify Flutter
         run: flutter --version
