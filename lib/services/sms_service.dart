@@ -114,8 +114,9 @@ class SmsService {
     if (isReceived) {
       // Example: "You have received Ksh1,500.00 from JOHN MWANGI 0712345678 on 3/9/26"
       final receivedPattern = RegExp(
-        r'from\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d',
+        r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
         caseSensitive: false,
+);
       );
       final match = receivedPattern.firstMatch(trimmed);
       if (match != null) {
@@ -127,7 +128,7 @@ class SmsService {
       // "sent to MARY WANJIRU 0723456789 on 3/9/26"
       // "paid to KPLC PREPAID. on 3/9/26"
       final sentPattern = RegExp(
-        r'(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d',
+        r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
         caseSensitive: false,
       );
       final match = sentPattern.firstMatch(trimmed);

@@ -166,10 +166,9 @@ class _AppSearchBarState extends State<AppSearchBar> {
         decoration: BoxDecoration(
           color: isSelected ? activeColor : Colors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.parse(
-            isSelected
-                ? 'border: 1.5px solid $activeColor'
-                : 'border: 1px solid ${AppColors.divider}',
+          border: Border.all(
+              color: isSelected ? activeColor : AppColors.divider,
+            width: isSelected ? 1.5 : 1,
           ),
           boxShadow: isSelected
               ? [

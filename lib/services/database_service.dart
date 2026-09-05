@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import '../models/transaction.dart';
+import '../models/transaction.dart' as app_models;
 import '../utils/constants.dart';
 
 class DatabaseService {
@@ -60,7 +60,7 @@ class DatabaseService {
 
   /// Batch insert transactions, ignoring existing transaction codes (no duplicates)
   /// Returns the number of newly inserted records.
-  Future<int> insertBatch(List<Transaction> transactions) async {
+  Future<int> insertBatch(List<app_models.Transaction> transactions) async {
     if (transactions.isEmpty) return 0;
 
     final db = await database;
@@ -86,7 +86,7 @@ class DatabaseService {
   }
 
   /// Insert a single transaction
-  Future<int> insertTransaction(Transaction tx) async {
+  Future<int> insertTransaction(app_models.Transaction tx) async {
     final db = await database;
     return await db.insert(
       AppConstants.tableName,
@@ -149,7 +149,7 @@ class DatabaseService {
       offset: offset,
     );
 
-    return List.generate(maps.length, (i) => Transaction.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => app_models.Transaction.fromMap(maps[i]));
   }
 
   /// Get total count of transactions
@@ -180,13 +180,13 @@ class DatabaseService {
   }
 
   /// Get all transactions for CSV export
-  Future<List<Transaction>> getAllTransactions() async {
+  Future<List<app_models.Transaction>> getAllTransactions() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       AppConstants.tableName,
       orderBy: 'timestamp DESC',
     );
-    return List.generate(maps.length, (i) => Transaction.fromMap(maps[i]));
+    return List.generate(maps.length, (i) => app_models.Transaction.fromMap(maps[i]));
   }
 
   /// Clear all transaction data
