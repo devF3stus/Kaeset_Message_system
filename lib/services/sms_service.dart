@@ -117,7 +117,7 @@ class SmsService {
         r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
         caseSensitive: false,
 );
-      );
+      
       final match = receivedPattern.firstMatch(trimmed);
       if (match != null) {
         name = _cleanName(match.group(1) ?? 'Unknown');

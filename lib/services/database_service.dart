@@ -96,9 +96,9 @@ class DatabaseService {
   }
 
   /// Search transactions by customer name or transaction code with filters and sorting
-  Future<List<Transaction>> searchTransactions({
+  Future<List<app_models.Transaction>> searchTransactions({
     String? query,
-    TransactionType? filterType,
+    app_models.TransactionType? filterType,
     String sortBy = 'date_desc',
     int limit = 100,
     int offset = 0,

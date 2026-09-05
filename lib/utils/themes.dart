@@ -30,7 +30,7 @@ class AppThemes {
       ),
       iconTheme: IconThemeData(color: Colors.white),
     ),
-    cardTheme: cardTheme(
+    cardTheme: CardTheme(
       color: AppColors.cardBackground,
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.06),

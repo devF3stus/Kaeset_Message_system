@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import '../models/transaction.dart';
+import '../models/transaction.dart' as app_models;
 import '../services/database_service.dart';
 import '../services/preference_service.dart';
 import '../services/sms_service.dart';
@@ -10,8 +10,8 @@ import '../utils/helpers.dart';
 class TransactionProvider extends ChangeNotifier {
   final DatabaseService _dbService = DatabaseService.instance;
 
-  List<Transaction> _transactions = [];
-  List<Transaction> _searchResults = [];
+  List<app_models.Transaction> _transactions = [];
+  List<app_models.Transaction> _searchResults = [];
 
   bool _isLoading = false;
   bool _isSyncing = false;
@@ -25,12 +25,12 @@ class TransactionProvider extends ChangeNotifier {
 
   // Search & Filter State
   String _searchQuery = '';
-  TransactionType? _filterType;
+  app_models.TransactionType? _filterType;
   String _sortBy = 'date_desc';
 
   // Getters
-  List<Transaction> get transactions => _transactions;
-  List<Transaction> get searchResults => _searchResults;
+  List<app_models.Transaction> get transactions => _transactions;
+  List<app_models.Transaction> get searchResults => _searchResults;
   bool get isLoading => _isLoading;
   bool get isSyncing => _isSyncing;
   String? get syncError => _syncError;
@@ -41,7 +41,7 @@ class TransactionProvider extends ChangeNotifier {
   double get totalSent => _totalSent;
 
   String get searchQuery => _searchQuery;
-  TransactionType? get filterType => _filterType;
+  app_models.TransactionType? get filterType => _filterType;
   String get sortBy => _sortBy;
 
   TransactionProvider() {
@@ -97,7 +97,7 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   /// Change filter type (All, Received, Sent)
-  void setFilterType(TransactionType? type) {
+  void setFilterType(app_models.TransactionType? type) {
     _filterType = type;
     executeSearch();
   }
@@ -154,7 +154,7 @@ class TransactionProvider extends ChangeNotifier {
     int inserted = 0;
     try {
       final mockMessages = SmsService.getMockMessages();
-      final List<Transaction> mockTxs = [];
+      final List<app_models.Transaction> mockTxs = [];
 
       for (final msg in mockMessages) {
         final tx = SmsService.parseMpesaMessage(msg);
