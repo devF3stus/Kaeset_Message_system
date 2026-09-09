@@ -72,7 +72,8 @@ class SmsService {
 
     // 2. Determine Transaction Type & extract details
     final isReceived = RegExp(r'received\s+Ksh', caseSensitive: false).hasMatch(trimmed) ||
-                       RegExp(r'give\s+Ksh', caseSensitive: false).hasMatch(trimmed);
+                       RegExp(r'give\s+Ksh', caseSensitive: false).hasMatch(trimmed) ||
+                       RegExp(r'Ksh.*received\s+from', caseSensitive: false).hasMatch(trimmed);
     final isSent = RegExp(r'sent\s+to|paid\s+to', caseSensitive: false).hasMatch(trimmed);
 
     if (!isReceived && !isSent) {
@@ -112,72 +113,13 @@ class SmsService {
     String? phone;
 
     if (isReceived) {
-      // Example: "You have received Ksh1,500.00 from JOHN MWANGI 0712345678 on 3/9/26"
-      final receivedPattern = RegExp(
-        r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
-        caseSensitive: false,
-);
-
-      var match = receivedPattern.firstMatch(trimmed);
-      if (match != null) {
-        name = _cleanName(match.group(1) ?? 'Unknown');
-        phone = match.group(2);
-      } else {
-        // Fallback: name between "from" and phone number (no "on" required)
-        final fallbackPattern = RegExp(
-          r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))",
-          caseSensitive: false,
-        );
-        final fallbackMatch = fallbackPattern.firstMatch(trimmed);
-        if (fallbackMatch != null) {
-          name = _cleanName(fallbackMatch.group(1) ?? 'Unknown');
-          phone = fallbackMatch.group(2);
-        } else {
-          // Last resort: name between "from" and "on" or period
-          final lastResort = RegExp(
-            r"from\s+([A-Za-z0-9\s\.'\-]+?)\s+(?:on\s+\d|[.])",
-            caseSensitive: false,
-          );
-          final lastResortMatch = lastResort.firstMatch(trimmed);
-          if (lastResortMatch != null) {
-            name = _cleanName(lastResortMatch.group(1) ?? 'Unknown');
-          }
-        }
-      }
+      final result = _extractReceivedName(trimmed);
+      name = result.name;
+      phone = result.phone;
     } else {
-      // Sent or Paid to:
-      // "sent to MARY WANJIRU 0723456789 on 3/9/26"
-      // "paid to KPLC PREPAID. on 3/9/26"
-      final sentPattern = RegExp(
-        r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
-        caseSensitive: false,
-      );
-      var match = sentPattern.firstMatch(trimmed);
-      if (match != null) {
-        name = _cleanName(match.group(1) ?? 'Unknown');
-        phone = match.group(2);
-      } else {
-        // Fallback: name between "to" and phone number (no "on" required)
-        final fallbackPattern = RegExp(
-          r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))",
-          caseSensitive: false,
-        );
-        final fallbackMatch = fallbackPattern.firstMatch(trimmed);
-        if (fallbackMatch != null) {
-          name = _cleanName(fallbackMatch.group(1) ?? 'Unknown');
-          phone = fallbackMatch.group(2);
-        } else {
-          // Last resort: name between "to" and "on" or period
-          final lastResort = RegExp(
-            r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)\s+(?:on\s+\d|[.])",
-            caseSensitive: false,
-          );
-          final lastResortMatch = lastResort.firstMatch(trimmed);
-          if (lastResortMatch != null) {
-            name = _cleanName(lastResortMatch.group(1) ?? 'Unknown');
-          }
-        }
-      }
+      final result = _extractSentName(trimmed);
+      name = result.name;
+      phone = result.phone;
     }
 
     return Transaction(
@@ -199,6 +141,100 @@ class SmsService {
     cleaned = cleaned.replaceAll(RegExp(r"^[\s\-']+|[\s\-']+$"), '').trim();
     if (cleaned.isEmpty) return 'Unknown';
     return cleaned;
+  }
+
+  /// Result holder for name extraction
+  static _NameResult _extractReceivedName(String text) {
+    String name = 'Unknown';
+    String? phone;
+
+    // Step 1: Find "from" keyword
+    final fromIdx = text.toLowerCase().indexOf('from ');
+    if (fromIdx == -1) return _NameResult(name, phone);
+
+    final afterFrom = text.substring(fromIdx + 5);
+    final result = _extractNameAndPhone(afterFrom);
+    name = result.name;
+    phone = result.phone;
+
+    return _NameResult(name, phone);
+  }
+
+  static _NameResult _extractSentName(String text) {
+    String name = 'Unknown';
+    String? phone;
+
+    // Step 1: Find "sent to" or "paid to"
+    final sentIdx = text.toLowerCase().indexOf('sent to ');
+    final paidIdx = text.toLowerCase().indexOf('paid to ');
+    int keywordIdx = -1;
+    int keywordLen = 0;
+
+    if (sentIdx >= 0 && (paidIdx < 0 || sentIdx <= paidIdx)) {
+      keywordIdx = sentIdx;
+      keywordLen = 8; // "sent to ".length
+    } else if (paidIdx >= 0) {
+      keywordIdx = paidIdx;
+      keywordLen = 8; // "paid to ".length
+    }
+
+    if (keywordIdx < 0) return _NameResult(name, phone);
+
+    final afterTo = text.substring(keywordIdx + keywordLen);
+    final result = _extractNameAndPhone(afterTo);
+    name = result.name;
+    phone = result.phone;
+
+    return _NameResult(name, phone);
+  }
+
+  /// Core extraction: given text after "from" or "to", extract name and phone.
+  /// Uses multiple strategies to handle every real-world M-Pesa format.
+  static _NameResult _extractNameAndPhone(String text) {
+    String name = 'Unknown';
+    String? phone;
+
+    // Strategy 1: Find phone number first, name is everything before it
+    final phoneMatch = RegExp(r'(07\d{8}|01\d{8}|\+?254\d{9})').firstMatch(text);
+    if (phoneMatch != null) {
+      phone = phoneMatch.group(1);
+      final rawName = text.substring(0, phoneMatch.start);
+      name = _cleanName(rawName);
+      if (name != 'Unknown') return _NameResult(name, phone);
+    }
+
+    // Strategy 2: Find "on DATE at TIME" pattern, name is everything before it
+    final onMatch = RegExp(r'\s+on\s+\d').firstMatch(text);
+    if (onMatch != null) {
+      final rawName = text.substring(0, onMatch.start);
+      name = _cleanName(rawName);
+      if (name != 'Unknown') return _NameResult(name, phone);
+    }
+
+    // Strategy 3: Find sentence boundary — ". " followed by capital letter or "New"
+    final sentenceBreak = RegExp(r'\.\s+(?:New|new|Transaction|Separate|Buy|Pay|Spend)').firstMatch(text);
+    if (sentenceBreak != null) {
+      final rawName = text.substring(0, sentenceBreak.start);
+      name = _cleanName(rawName);
+      if (name != 'Unknown') return _NameResult(name, phone);
+    }
+
+    // Strategy 4: Find first period followed by space (end of name clause)
+    final periodMatch = RegExp(r'\.\s').firstMatch(text);
+    if (periodMatch != null) {
+      final rawName = text.substring(0, periodMatch.start);
+      name = _cleanName(rawName);
+      if (name != 'Unknown') return _NameResult(name, phone);
+    }
+
+    // Strategy 5: Take up to 60 chars as a generous fallback (most names are shorter)
+    if (name == 'Unknown' && text.trim().isNotEmpty) {
+      final limit = text.length > 60 ? 60 : text.length;
+      final rawName = text.substring(0, limit);
+      name = _cleanName(rawName);
+    }
+
+    return _NameResult(name, phone);
   }
 
   static DateTime? _parseDateString(String dateStr, String timeStr) {
@@ -242,4 +278,11 @@ class SmsService {
       "QA12BC34DS Confirmed. Ksh1,500.00 sent to SAMUEL KARIUKI 0711122233 on 23/8/26 at 1:40 PM. New M-PESA balance is Ksh12,700.00.",
     ];
   }
+}
+
+/// Simple result holder for name + phone extraction
+class _NameResult {
+  final String name;
+  final String? phone;
+  _NameResult(this.name, this.phone);
 }
