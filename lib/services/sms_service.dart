@@ -196,7 +196,7 @@ class SmsService {
     // Normalize multiple spaces
     cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
     // Remove leading/trailing hyphens or apostrophes that might result from bad captures
-    cleaned = cleaned.replaceAll(RegExp(r'^[\s\-\'\']+|[\s\-\'\']+$'), '').trim();
+    cleaned = cleaned.replaceAll(RegExp(r"^[\s\-']+|[\s\-']+$"), '').trim();
     if (cleaned.isEmpty) return 'Unknown';
     return cleaned;
   }
