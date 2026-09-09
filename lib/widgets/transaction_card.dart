@@ -87,35 +87,39 @@ class TransactionCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   // Amount
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '$prefix ${AppHelpers.formatCurrency(transaction.amount)}',
-                        style: TextStyle(
-                          fontSize: fontProvider.scale(16),
-                          fontWeight: FontWeight.w800,
-                          color: primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          transaction.type.displayName.toUpperCase(),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '$prefix ${AppHelpers.formatCurrency(transaction.amount)}',
                           style: TextStyle(
-                            fontSize: fontProvider.scale(10),
-                            fontWeight: FontWeight.w700,
+                            fontSize: fontProvider.scale(16),
+                            fontWeight: FontWeight.w800,
                             color: primaryColor,
-                            letterSpacing: 0.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            transaction.type.displayName.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: fontProvider.scale(10),
+                              fontWeight: FontWeight.w700,
+                              color: primaryColor,
+                              letterSpacing: 0.5,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -125,46 +129,60 @@ class TransactionCard extends StatelessWidget {
 
               // Row 2: Code & Timestamp
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // Transaction Code
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.tag,
-                        size: fontProvider.scale(14),
-                        color: AppColors.textTertiary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        transaction.transactionCode,
-                        style: TextStyle(
-                          fontFamily: 'monospace',
-                          fontSize: fontProvider.scale(12),
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textSecondary,
-                          letterSpacing: 0.5,
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.tag,
+                          size: fontProvider.scale(14),
+                          color: AppColors.textTertiary,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            transaction.transactionCode,
+                            style: TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: fontProvider.scale(12),
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textSecondary,
+                              letterSpacing: 0.5,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   // Date and Time
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.access_time_rounded,
-                        size: fontProvider.scale(13),
-                        color: AppColors.textTertiary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        AppHelpers.formatDateTime(transaction.timestamp),
-                        style: TextStyle(
-                          fontSize: fontProvider.scale(12),
-                          color: AppColors.textSecondary,
+                  Flexible(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time_rounded,
+                          size: fontProvider.scale(13),
+                          color: AppColors.textTertiary,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            AppHelpers.formatDateTime(transaction.timestamp),
+                            style: TextStyle(
+                              fontSize: fontProvider.scale(12),
+                              color: AppColors.textSecondary,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

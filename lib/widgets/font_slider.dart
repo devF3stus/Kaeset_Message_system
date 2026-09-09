@@ -156,21 +156,29 @@ class FontSlider extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '+ KES 2,500.00',
-                    style: TextStyle(
-                      fontSize: fontProvider.scale(16),
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.received,
+                  Flexible(
+                    child: Text(
+                      '+ KES 2,500.00',
+                      style: TextStyle(
+                        fontSize: fontProvider.scale(16),
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.received,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    'Today, 10:15 AM',
-                    style: TextStyle(
-                      fontSize: fontProvider.scale(12),
-                      color: AppColors.textSecondary,
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      'Today, 10:15 AM',
+                      style: TextStyle(
+                        fontSize: fontProvider.scale(12),
+                        color: AppColors.textSecondary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],

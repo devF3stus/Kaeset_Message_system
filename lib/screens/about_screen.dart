@@ -130,7 +130,7 @@ class AboutScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'KAESET MESSAGE SYSTEM is built with offline security at its core:\n\n'
+                      'KAESET MESSAGE SYSTEM is built by Festus Omuga for Chrispin Emacar (Dad) with offline security at its core:\n\n'
                       '• No Internet Permission: The app cannot send or receive data over the web.\n'
                       '• Local SQLite Storage: All parsed M-Pesa records remain encrypted on your device.\n'
                       '• Read-Only Access: SMS messages are only read locally to extract customer transaction information.\n'

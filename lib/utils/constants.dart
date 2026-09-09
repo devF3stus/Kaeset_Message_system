@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class AppConstants {
   static const String appName = 'KAESET MESSAGE SYSTEM';
   static const String appVersion = '1.0.0';
-  static const String developerInfo = 'KAESET Enterprise Solutions';
-  static const String developerEmail = 'support@kaeset.com';
+  static const String developerInfo = 'DEV FESTUS OMUGA';
+  static const String developerEmail = 'devfestusomerikit@gmail.com';
 
   // SharedPreferences keys
   static const String prefFontScale = 'kaeset_font_scale';

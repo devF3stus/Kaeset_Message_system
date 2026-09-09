@@ -117,11 +117,32 @@ class SmsService {
         r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
         caseSensitive: false,
 );
-      
-      final match = receivedPattern.firstMatch(trimmed);
+
+      var match = receivedPattern.firstMatch(trimmed);
       if (match != null) {
         name = _cleanName(match.group(1) ?? 'Unknown');
         phone = match.group(2);
+      } else {
+        // Fallback: name between "from" and phone number (no "on" required)
+        final fallbackPattern = RegExp(
+          r"from\s+([A-Za-z0-9\s\.'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))",
+          caseSensitive: false,
+        );
+        final fallbackMatch = fallbackPattern.firstMatch(trimmed);
+        if (fallbackMatch != null) {
+          name = _cleanName(fallbackMatch.group(1) ?? 'Unknown');
+          phone = fallbackMatch.group(2);
+        } else {
+          // Last resort: name between "from" and "on" or period
+          final lastResort = RegExp(
+            r"from\s+([A-Za-z0-9\s\.'\-]+?)\s+(?:on\s+\d|[.])",
+            caseSensitive: false,
+          );
+          final lastResortMatch = lastResort.firstMatch(trimmed);
+          if (lastResortMatch != null) {
+            name = _cleanName(lastResortMatch.group(1) ?? 'Unknown');
+          }
+        }
       }
     } else {
       // Sent or Paid to:
@@ -131,10 +152,31 @@ class SmsService {
         r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))?\s+on\s+\d",
         caseSensitive: false,
       );
-      final match = sentPattern.firstMatch(trimmed);
+      var match = sentPattern.firstMatch(trimmed);
       if (match != null) {
         name = _cleanName(match.group(1) ?? 'Unknown');
         phone = match.group(2);
+      } else {
+        // Fallback: name between "to" and phone number (no "on" required)
+        final fallbackPattern = RegExp(
+          r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)(?:\s+(07\d{8}|01\d{8}|\+?254\d{9}))",
+          caseSensitive: false,
+        );
+        final fallbackMatch = fallbackPattern.firstMatch(trimmed);
+        if (fallbackMatch != null) {
+          name = _cleanName(fallbackMatch.group(1) ?? 'Unknown');
+          phone = fallbackMatch.group(2);
+        } else {
+          // Last resort: name between "to" and "on" or period
+          final lastResort = RegExp(
+            r"(?:sent\s+to|paid\s+to)\s+([A-Za-z0-9\s\.\'\-]+?)\s+(?:on\s+\d|[.])",
+            caseSensitive: false,
+          );
+          final lastResortMatch = lastResort.firstMatch(trimmed);
+          if (lastResortMatch != null) {
+            name = _cleanName(lastResortMatch.group(1) ?? 'Unknown');
+          }
+        }
       }
     }
 
@@ -153,6 +195,8 @@ class SmsService {
     var cleaned = raw.replaceAll(RegExp(r'[\.\,\:\;]+$'), '').trim();
     // Normalize multiple spaces
     cleaned = cleaned.replaceAll(RegExp(r'\s+'), ' ');
+    // Remove leading/trailing hyphens or apostrophes that might result from bad captures
+    cleaned = cleaned.replaceAll(RegExp(r'^[\s\-\'\']+|[\s\-\'\']+$'), '').trim();
     if (cleaned.isEmpty) return 'Unknown';
     return cleaned;
   }
